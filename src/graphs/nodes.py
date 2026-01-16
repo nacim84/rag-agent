@@ -6,6 +6,9 @@ from src.graphs.state import AgentState
 from src.rag.retriever import get_retriever_for_client
 from src.rag.embeddings import get_reranker
 from src.config.settings import settings
+from src.config.logging import get_logger
+
+logger = get_logger("agent.nodes")
 
 # Initialize LLM for routing and generation
 llm = ChatGoogleGenerativeAI(
@@ -37,7 +40,10 @@ async def route_query(state: AgentState) -> AgentState:
     
     # Validation
     if domain not in ["comptable", "transaction", "exploitation"]:
+        logger.warning("domain_fallback", original_domain=domain, fallback="exploitation")
         domain = "exploitation" # Fallback
+    
+    logger.info("query_routed", domain=domain, query_snippet=query[:50])
         
     return {
         **state,
@@ -54,8 +60,12 @@ async def retrieve_docs(state: AgentState) -> AgentState:
     domain = state["domain"]
     query = state["query"]
     
+    logger.info("retrieving_docs", client_id=client_id, domain=domain)
+    
     retriever = get_retriever_for_client(client_id, domain)
     docs = await retriever.ainvoke(query)
+    
+    logger.info("docs_retrieved", count=len(docs))
     
     return {
         **state,
@@ -77,6 +87,8 @@ async def rerank_docs(state: AgentState) -> AgentState:
     
     reranked_docs = reranker.compress_documents(docs, query)
     
+    logger.info("docs_reranked", count=len(list(reranked_docs)), original_count=len(docs))
+    
     return {
         **state,
         "retrieved_docs": list(reranked_docs),
@@ -88,12 +100,9 @@ async def generate_answer(state: AgentState) -> AgentState:
     Generates the final answer based on the reranked documents and conversation history.
     """
     docs = state["retrieved_docs"]
-    # We don't use query directly here, we let the LLM see the whole history
-    # But we inject context
     
     context = "\n\n".join([f"Source {i+1}:\n{doc.page_content}" for i, doc in enumerate(docs)])
     
-    # Create a prompt that includes history
     prompt = ChatPromptTemplate.from_messages([
         ("system", "You are a professional business assistant. Use the following pieces of context to answer the users question. "
                    "If you don't know the answer based on the context, say that you don't know. "
@@ -104,7 +113,8 @@ async def generate_answer(state: AgentState) -> AgentState:
     
     chain = prompt | llm
     
-    # Pass the full message history
+    logger.info("generating_answer", context_length=len(context))
+    
     response = await chain.ainvoke({
         "context": context,
         "messages": state["messages"]
