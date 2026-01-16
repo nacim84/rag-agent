@@ -1,4 +1,4 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Union
 from langchain_core.messages import AIMessage, HumanMessage, BaseMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -17,6 +17,15 @@ llm = ChatGoogleGenerativeAI(
     temperature=0
 )
 
+def _extract_text_content(message_content: Union[str, List[Union[str, Dict]]]) -> str:
+    """Helper to extract text from potential multimodal content."""
+    if isinstance(message_content, list):
+        return "".join([
+            part if isinstance(part, str) else part.get("text", "") 
+            for part in message_content
+        ])
+    return str(message_content)
+
 async def route_query(state: AgentState) -> AgentState:
     """
     Determines the business domain of the query.
@@ -24,7 +33,10 @@ async def route_query(state: AgentState) -> AgentState:
     """
     # Use the last message content as query
     last_message = state["messages"][-1]
-    query = last_message.content if isinstance(last_message, (HumanMessage, AIMessage)) else str(last_message)
+    query = last_message.content
+    # Ensure query is string
+    if not isinstance(query, str):
+        query = _extract_text_content(query)
     
     prompt = ChatPromptTemplate.from_template(
         "Analyze the following user query and classify it into one of these three domains: "
@@ -36,7 +48,10 @@ async def route_query(state: AgentState) -> AgentState:
     
     chain = prompt | llm
     response = await chain.ainvoke({"query": query})
-    domain = response.content.strip().lower()
+    
+    # Robust content extraction
+    content = _extract_text_content(response.content)
+    domain = content.strip().lower()
     
     # Validation
     if domain not in ["comptable", "transaction", "exploitation"]:
@@ -120,9 +135,11 @@ async def generate_answer(state: AgentState) -> AgentState:
         "messages": state["messages"]
     })
     
+    content = _extract_text_content(response.content)
+    
     return {
         **state,
-        "final_response": response.content,
+        "final_response": content,
         "current_step": "completed",
-        "messages": [AIMessage(content=response.content)]
+        "messages": [AIMessage(content=content)]
     }

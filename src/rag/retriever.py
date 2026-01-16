@@ -1,6 +1,7 @@
 from langchain_postgres import PGVector
 from src.rag.embeddings import get_embeddings
 from src.config.settings import settings
+from src.config.database import engine # Import shared AsyncEngine
 
 def get_retriever_for_client(client_id: str, domain: str):
     """
@@ -11,11 +12,14 @@ def get_retriever_for_client(client_id: str, domain: str):
     embeddings = get_embeddings()
     
     # PGVector from langchain-postgres
+    # Fix: Use shared async engine and disable extension creation
+    # to avoid asyncpg concurrency issues
     vector_store = PGVector(
         embeddings=embeddings,
         collection_name=table_name,
-        connection=settings.DATABASE_URL,
+        connection=engine,
         use_jsonb=True,
+        create_extension=False,
     )
     
     return vector_store.as_retriever(
