@@ -7,7 +7,8 @@ from langchain_postgres import PGVector
 from src.api.auth import get_current_client
 from src.rag.embeddings import get_embeddings
 from src.config.settings import settings
-from src.api.schemas import ChatResponse # Reusing models if needed, but ingest returns status
+from src.config.database import engine # Import shared AsyncEngine
+from src.api.schemas import ChatResponse 
 
 router = APIRouter()
 
@@ -63,12 +64,14 @@ async def ingest_document(
         table_name = f"documents_{domain}_{client_id}"
         embeddings = get_embeddings()
         
-        # Initialize PGVector
+        # Initialize PGVector with shared AsyncEngine
+        # This helps reuse the connection pool and context
         vector_store = PGVector(
             embeddings=embeddings,
             collection_name=table_name,
-            connection=settings.DATABASE_URL,
+            connection=engine,
             use_jsonb=True,
+            create_extension=False, # We handle extension creation in init_db.sql
         )
         
         # Add documents (async)
@@ -82,6 +85,9 @@ async def ingest_document(
         }
 
     except Exception as e:
+        # Log the full error traceback for debugging
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
         
     finally:
