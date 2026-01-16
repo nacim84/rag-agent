@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     """Configuration centralisée de l'application."""
 
     # Application
-    APP_NAME: str = "langgraph-workflow"
+    APP_NAME: str = "rag-agent"
     APP_ENV: str = "development"
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     # LangSmith
     LANGCHAIN_TRACING_V2: bool = True
     LANGCHAIN_API_KEY: Optional[str] = None
-    LANGCHAIN_PROJECT: str = "langgraph-workflow"
+    LANGCHAIN_PROJECT: str = "rag-agent"
 
     # APIs
     NOTION_API_KEY: Optional[str] = None

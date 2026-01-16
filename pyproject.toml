@@ -1,5 +1,5 @@
 [project]
-name = "langgraph-workflow"
+name = "rag-agent"
 version = "0.1.0"
 description = "Boilerplate pour workflows agentiques LangGraph"
 readme = "README.md"

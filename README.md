@@ -1,4 +1,4 @@
-# LangGraph Workflows Boilerplate
+# Rag Agent
 
 Ce projet est un boilerplate pour créer des workflows agentiques avec LangChain et LangGraph.
 
