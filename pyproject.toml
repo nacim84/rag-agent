@@ -1,0 +1,116 @@
+[project]
+name = "langgraph-workflow"
+version = "0.1.0"
+description = "Boilerplate pour workflows agentiques LangGraph"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    # Core LangChain/LangGraph
+    "langchain>=0.3.0",
+    "langchain-core>=0.3.0",
+    "langchain-community>=0.3.0",
+    "langgraph>=0.2.0",
+    "langgraph-checkpoint-postgres>=0.1.0",
+
+    # LLM Providers
+    "langchain-openai>=0.2.0",
+    "langchain-anthropic>=0.2.0",
+    "langchain-google-genai>=2.0.0",
+    "langchain-cohere>=0.3.0",
+
+    # Observabilité
+    "langsmith>=0.1.0",
+
+    # Database
+    "psycopg[binary]>=3.1.0",
+    "asyncpg>=0.29.0",
+    "sqlalchemy[asyncio]>=2.0.0",
+    "alembic>=1.13.0",
+
+    # API Framework
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+
+    # Validation
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+
+    # HTTP
+    "httpx>=0.27.0",
+    "aiohttp>=3.9.0",
+
+    # Task Queue
+    "redis>=5.0.0",
+    "celery>=5.3.0",
+
+    # Utils
+    "python-dotenv>=1.0.0",
+    "structlog>=24.0.0",
+    "tenacity>=8.2.0",
+
+    # Google APIs
+    "google-api-python-client>=2.100.0",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.0",
+
+    # Autres intégrations
+    "notion-client>=2.2.0",
+    "python-telegram-bot>=21.0",
+    "slack-sdk>=3.27.0",
+    "cohere>=5.0.0",
+    "tweepy>=4.14.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+    "pre-commit>=3.7.0",
+    "ipython>=8.0.0",
+    "jupyter>=1.0.0",
+]
+
+# ============================================
+# CONFIGURATION UV (Astral)
+# ============================================
+[tool.uv]
+# Utiliser le resolver UV
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+    "pre-commit>=3.7.0",
+    "ipython>=8.0.0",
+    "jupyter>=1.0.0",
+]
+
+[tool.uv.sources]
+# Sources personnalisées si nécessaire
+# langchain = { git = "https://github.com/langchain-ai/langchain.git" }
+
+# ============================================
+# CONFIGURATION OUTILS
+# ============================================
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

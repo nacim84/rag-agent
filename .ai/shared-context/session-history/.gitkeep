@@ -1,0 +1,5 @@
+# Session History
+
+Ce dossier contient l'historique des sessions archivées.
+
+Chaque session est un fichier `session_XXX.md` contenant le contexte complet de la session.

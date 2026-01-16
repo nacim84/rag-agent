@@ -1,0 +1,188 @@
+version: "3.9"
+
+services:
+  # ============================================
+  # APPLICATION PRINCIPALE
+  # ============================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: langgraph-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src:ro
+      - ./secrets:/app/secrets:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - langgraph-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # WORKER CELERY
+  # ============================================
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: langgraph-worker
+    restart: unless-stopped
+    command: celery -A src.worker worker --loglevel=info --concurrency=4
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src:ro
+      - ./secrets:/app/secrets:ro
+    depends_on:
+      - app
+      - redis
+    networks:
+      - langgraph-network
+
+  # ============================================
+  # CELERY BEAT (Scheduler)
+  # ============================================
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: langgraph-beat
+    restart: unless-stopped
+    command: celery -A src.worker beat --loglevel=info
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src:ro
+    depends_on:
+      - worker
+    networks:
+      - langgraph-network
+
+  # ============================================
+  # POSTGRESQL
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: langgraph-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-langgraph_db}
+      POSTGRES_USER: ${POSTGRES_USER:-langgraph_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - langgraph-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-langgraph_user} -d ${POSTGRES_DB:-langgraph_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # REDIS
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: langgraph-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - langgraph-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # PGADMIN (Interface DB - Dev uniquement)
+  # ============================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: langgraph-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - langgraph-network
+    profiles:
+      - dev
+
+  # ============================================
+  # N8N (Optionnel - Automatisation)
+  # ============================================
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: langgraph-n8n
+    restart: unless-stopped
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-admin}
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678}
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - langgraph-network
+    profiles:
+      - automation
+
+  # ============================================
+  # QDRANT (Vector DB - Optionnel)
+  # ============================================
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: langgraph-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - langgraph-network
+    profiles:
+      - vectordb
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  postgres_data:
+  redis_data:
+  n8n_data:
+  qdrant_data:
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  langgraph-network:
+    driver: bridge
