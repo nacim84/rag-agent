@@ -1,20 +1,3 @@
-
-> **Document de référence pour tout agent IA travaillant sur ce boilerplate**
-> Ce fichier contient toutes les directives techniques pour initialiser et développer des projets d'automatisation et workflows agentiques.
-
----
-
-**Instructions pour l'Agent Utilisé**
-
-> Ce fichier est à **copier/coller** puis le supprimer, dans l'un de ces fichiers selon le LLM utilisé : 
-- Claude-Code : CLAUDE.md,
-- Gemini-CLI : GEMINI.md,
-- Others : AGENTS.md,
-
-Afin que les mêmes instructions se chargent dans n'importe quel environnement d'IA.
-
-**Contenu à copier/coller**
-
 # Mémoire Agent IA
 
 ## Table des Matières

@@ -1,0 +1,682 @@
+{
+  "name": "Chat_RAG_Main",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Exploitation Agent Tool for RAG",
+        "height": 80,
+        "width": 311,
+        "color": 4
+      },
+      "id": "0d73aeed-4f2c-42f4-a714-0bb3bc115b26",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        16,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Edit Fields').item.json.sessionId }}",
+        "tableName": "rag_chat_memory"
+      },
+      "id": "b372cfe1-61cf-4c6c-8ddd-b90dbceed1d3",
+      "name": "Postgres Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        112
+      ],
+      "notesInFlow": false,
+      "credentials": {
+        "postgres": {
+          "id": "AvFPQ3N7G6VMvsbn",
+          "name": "Postgres account common rag"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## RAG AI Agent with Chat Interface : Compta, Transactions et Exploitation",
+        "height": 80,
+        "width": 1292
+      },
+      "id": "e18cbcd6-c283-4711-aa36-e6bd3d8fd4ab",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b6758092-8a80-4c3b-9e98-3b4dd9323d44",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9a9a245e-f1a1-4282-bb02-a81ffe629f0f",
+              "name": "chatInput",
+              "value": "={{ $json?.chatInput || $json.body.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "b80831d8-c653-4203-8706-adedfdb98f77",
+              "name": "sessionId",
+              "value": "={{ $json?.sessionId || $json.body.sessionId}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3ccb30ca-1b78-4019-8ddd-52fcc06f5505",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -592,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "id": "958a288c-60a3-473c-8f6d-94a349851d65",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -864,
+        -112
+      ],
+      "webhookId": "e104e40e-6134-4825-a6f0-8a646d882662"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bf4dd093-bb02-472c-9454-7ab9af97bd1d",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "2cf37f96-70bc-4c86-9575-48adcbf9e616",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -864,
+        96
+      ],
+      "webhookId": "bf4dd093-bb02-472c-9454-7ab9af97bd1d",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "g0K4Z6LQu5wyoNGE",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "=Vous êtes un assistant personnel IA spécialisé dans la récupération augmentée de génération (RAG) et l'analyse de données, interfaçant via une architecture n8n. Votre objectif est de répondre aux questions de l'utilisateur en exploitant un corpus diversifié de documents et de données tabulaires.\n\nVotre ensemble d'outils est structuré comme suit :\n\n1.  **Outils RAG Spécialisés :**\n    *   **Comptable Agent Tool :** Pour les questions relatives à la comptabilité, la finance, les bilans, etc. Il utilise une base de connaissances vectorielle dédiée.\n    *   **Transaction Agent Tool :** Pour les questions concernant les transactions, les paiements, les flux de trésorerie ou les enregistrements d'activités spécifiques. Il utilise une base de connaissances vectorielle dédiée.\n    *   **Exploitation Agent Tool :** Pour les questions liées à l'exploitation, la production, la logistique ou les processus opérationnels. Il utilise une base de connaissances vectorielle dédiée.\n\n2.  **Outils de Gestion de Documents et de Données Généralistes :**\n    *   **List Documents :** Pour obtenir une liste des documents disponibles dans la base de connaissances.\n    *   **Get File Contents :** Pour extraire le contenu textuel complet d'un document spécifique.\n    *   **Query Document Rows :** Pour interroger des fichiers de données tabulaires (CSV, Excel) avec des requêtes SQL.\n\n**Principes de Fonctionnement :**\n\n*   **Priorité RAG Spécialisée :** Lorsque vous recevez une question, commencez par évaluer si elle relève d'un domaine spécifique (Comptabilité, Transaction, Exploitation). Si c'est le cas, utilisez l'outil RAG spécialisé correspondant en priorité. Ces outils sont optimisés pour leurs domaines respectifs et devraient fournir les réponses les plus pertinentes.\n*   **Priorité RAG Générique :** Si la question ne correspond pas clairement à un domaine spécialisé, ou si les outils spécialisés ne fournissent pas de réponse suffisante, utilisez l'outil RAG généraliste (`documents` table) pour une recherche plus large.\n*   **Requêtes SQL pour Données Tabulaires :** Si la question implique des agrégations, des filtres complexes, des calculs (sommes, moyennes, maximums, etc.) ou des recherches précises dans des données structurées, utilisez `Query Document Rows` avec des requêtes SQL. Ce type de question rendrait une recherche RAG peu fiable.\n*   **Exploration Manuelle si Nécessaire :** Si les recherches RAG (spécialisées ou génériques) ne donnent pas de résultat concluant, ou si vous avez besoin de plus de contexte :\n    1.  Utilisez `List Documents` pour identifier les documents pertinents dans votre base de connaissances.\n    2.  Puis, utilisez `Get File Contents` pour extraire et analyser le contenu de ces documents afin de trouver la réponse.\n*   **Transparence et Honnêteté :** Si vous ne trouvez pas la réponse après avoir utilisé toutes les approches pertinentes, indiquez-le clairement à l'utilisateur. Ne fabriquez jamais d'informations.\n\n**Flux d'Actions Recommandé :**\n\n1.  **Analyse de la question :** Déterminez si la question est de nature \"Comptable\", \"Transactionnelle\", \"Opérationnelle\" ou si elle requiert une requête SQL.\n2.  **Exécution de l'outil :**\n    *   Si spécifique : Utilisez l'outil RAG spécialisé approprié.\n    *   Si SQL : Utilisez `Query Document Rows`.\n    *   Sinon (RAG généraliste) : Effectuez une recherche RAG.\n3.  **Analyse des résultats :** Si la réponse est trouvée, formulez-la clairement.\n4.  **Recherche approfondie (si nécessaire) :** Si la réponse n'est pas trouvée, ou si elle est incomplète, utilisez `List Documents` puis `Get File Contents` sur les documents les plus pertinents.\n5.  **Réponse finale :** Fournissez la réponse ou indiquez que vous n'avez pas trouvé."
+        }
+      },
+      "id": "ebb58216-d735-40f7-8af1-26ea6a1bd21f",
+      "name": "RAG AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -384,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Utilise cet outil pour récupérer tous les documents disponibles, y compris le schéma de la table si le fichier est un CSV ou un fichier Excel.",
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "document_metadata",
+          "mode": "list",
+          "cachedResultName": "document_metadata"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.5,
+      "position": [
+        -32,
+        112
+      ],
+      "id": "baf8407e-3ba2-466f-89dc-6e9027180b80",
+      "name": "List Documents",
+      "credentials": {
+        "postgres": {
+          "id": "AvFPQ3N7G6VMvsbn",
+          "name": "Postgres account common rag"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Outil d'extraction de contenu de documents basé sur un file_id et table_name. Votre tâche est de :\n\nExtraire le contenu complet d'un document à l'aide de son identifiant file_id.\n\nDéterminer la base vectorielle correcte parmi les trois disponibles en fonction du contexte de la requête utilisateur. Les bases disponibles sont :\n\n- documents_comptable (pour les documents comptables)\n\n- documents_transaction (pour les transactions financières)\n\n- documents_exploitation (pour les documents de gestion opérationnelle)\nRègles pour choisir la table vectorielle :\n\nSi la requête mentionne des termes liés à la comptabilité (ex : \"Calcul TVA\", \"Calcul Cotisation\", \"Faire Bilan\"), utilisez documents_comptable.\n\nSi la requête concerne des opérations financières (ex : \"paiement\", \"dépense\", \"transferts\"), utilisez documents_transaction.\n\nSi la requête traite des processus métier, administratif ou logistiques (ex : \"livraison\", \"fonctions opérationnelles\", retrouver une facture/quittance), utilisez documents_exploitation.\n\nContraintes :\n\nSi le file_id n'est pas trouvé dans la table vectorielle choisie, informez l'utilisateur.\n\nSi le contexte est ambigu, demandez un clarificatif avant d'agir.\nFormats de réponse attendus :\n\nRetournez uniquement le contenu extrait du document (texte, données structurées, etc.).\n\nSi une base vectorielle n'est pas applicable, précisez la raison dans votre réponse.\n\n",
+        "operation": "executeQuery",
+        "query": "SELECT \n    string_agg(text, ' ') as document_text\nFROM $2\n  WHERE metadata->>'file_id' = $1\nGROUP BY metadata->>'file_id';",
+        "options": {
+          "queryReplacement": "=[{{ $fromAI('file_id') }}, {{ $fromAI('table_name') }}]"
+        }
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.5,
+      "position": [
+        112,
+        112
+      ],
+      "id": "0bb0a4ae-40ee-404c-bffa-0ea02196ed1f",
+      "name": "Get File Contents",
+      "credentials": {
+        "postgres": {
+          "id": "AvFPQ3N7G6VMvsbn",
+          "name": "Postgres account common rag"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=**Exécuter une requête SQL** - utilise cet outil pour interroger la table `transaction_rows` une fois que vous connaissez l'ID du fichier que vous souhaitez interroger. `transaction_row_id` est l'`ID_du_fichier` (file_id) et tu utilises toujours `transaction_row_content` pour le filtrage, qui est un champ `jsonb` contenant toutes les clés du schéma de fichier donné dans la table `document_metadata`.\n\nExemple de requête :\n\n```sql\nSELECT\n  transaction_row_content->>'label' AS entreprise,\n  transaction_row_content->>'settled_at' AS date_reglement\nFROM transaction_rows\nWHERE transaction_row_id = '1vlxMc4vlAHZJtneTPvw65Lhd2WClkllF'\n  AND transaction_row_content->>'settled_at' BETWEEN '2024-07-01 00:00:00+00' AND '2024-07-31 23:59:59+00';\n```\n\nExemple de requête 2 :\n\n```sql\n-- Comptage des transactions par catégorie\n\nSELECT\n  transaction_row_content->>'category' AS categorie,\n  COUNT(*) AS nb_transactions\nFROM transaction_rows\nWHERE transaction_row_id = '1vlxMc4vlAHZJtneTPvw65Lhd2WClkllF'\n  AND transaction_row_content->>'category' IS NOT NULL\nGROUP BY transaction_row_content->>'category';\n```\n\nExemple de requête 3 :\n\n```sql\n-- Transactions dans la catégorie \"restaurant_and_bar\"\n\nSELECT *\nFROM transaction_rows\nWHERE transaction_row_id = '1vlxMc4vlAHZJtneTPvw65Lhd2WClkllF'\n  AND transaction_row_content->>'category' = 'restaurant_and_bar';\n```",
+        "operation": "executeQuery",
+        "query": "{{ $fromAI('sql_query') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.5,
+      "position": [
+        256,
+        112
+      ],
+      "id": "d1f18649-ee98-4613-bfcf-a42d5902d2e6",
+      "name": "Query Document Rows",
+      "credentials": {
+        "postgres": {
+          "id": "AvFPQ3N7G6VMvsbn",
+          "name": "Postgres account common rag"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "topN": 4
+      },
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        192,
+        640
+      ],
+      "id": "ed4da18a-ca65-40df-adc3-da03876d780c",
+      "name": "Reranker Cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "cw76V6EwFEi4g7dF",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "=Outil RAG spécialisé dans la recherche et l'indexation de documents administratifs existants (factures, quittances, justificatifs, etc.). Votre mission est de :\n\nLocaliser ou enrichir une requête utilisateur concernant un document administratif spécifique (ex : \"Trouver la facture client X du mois dernier\" ou \"Ajouter des informations à une quittance 123\").\nRechercher dans les clés de métadonnées (ex : ID du document, date, montant, client, type de document) pour identifier le document concerné.\nExtraire des détails supplémentaires (statut, notes, pièces jointes, justifications légales) si le document existe déjà.\nDomaines prioritaires :\n\nFacturation : Researchers, suivi de paiement, justificatifs de pronostic fiscal.\nGestion de trésorerie : Quittances, chèques, virements liés à des opérations.\nAr expérimentales : Documents juridiques ou réglementaires associés à des factures/quittances.\nRègles clés :\n\nSi le document demandé existe mais manque de détails, proposez une mise à jour ou une enrichedissement.\nSi le document n'existe pas, infoz l'utilisateur et proposez des conseils pour le créer ou le retrouver.\nPrioriser les réponses structurées (ex : tableau de données, metadata, résumé).\nContraintes :\n\nSi la requête est trop floue (ex : \"Un document...\"), demandez des précisions (ID, date, type de document).\nNe traitez que les documents existants ; refusez les demandes de création nouveaux documents.\nFormat de réponse attendu :\n\nSi le document existe :\nInformations clés (ID, date, montant, statut).\nLiens ou pointeurs vers les pièces jointes ou archives.\nSi le document n'existe pas :\nExplication claire et proposition d'actions (recherche manuelle, création).",
+        "tableName": "documents_exploitation",
+        "topK": 25,
+        "useReranker": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        448
+      ],
+      "id": "63b5d56f-8cea-4891-85b0-011e0694434a",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "AvFPQ3N7G6VMvsbn",
+          "name": "Postgres account common rag"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        16,
+        640
+      ],
+      "id": "9f78b0e1-8ff7-436e-a8d3-ace0cd330e79",
+      "name": "Embeddings Google Gemini1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "XQFqtl8LCFDuPN8q",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-4.1-fast:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        112
+      ],
+      "id": "cd37b2cc-0155-474c-a3ed-6a34e89fa043",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "sd1UefqTE7nMGKKG",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Transaction Agent Tool for RAG",
+        "height": 80,
+        "width": 311,
+        "color": 5
+      },
+      "id": "830da86d-6ccc-4773-9614-62615c57930e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "topN": 4
+      },
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        640
+      ],
+      "id": "331fe620-3b22-4428-8742-89fa64d974fc",
+      "name": "Reranker Cohere1",
+      "credentials": {
+        "cohereApi": {
+          "id": "cw76V6EwFEi4g7dF",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Outil RAG spécialisé dans l'analyse des transactions bancaires pour :\n\nExtraire des détails techniques d'une transaction (date, montant, type, banque, VAT, etc.).\nFournir des données structurées utilisables pour des calculs comptables/fiscaux (ex : TVA déductible/collectée, journal comptable, liasse fiscale, bilan).\nObjectifs spécifiques :\n\nPour les transactions :\nIdentifier le-type de transaction (achat, paiement, transfert, etc.).\nRécupérer les données clés : date, montant en EUR, TVA incluse, débiteur/crediteur.\nRelier la transaction à des comptes comptables (ex : compte bancaire, fermeture de livraison).\nPour les calculs :\nDéduire la TVA à vérifier en fonction du taux appliqué et de la nature de l'opération.\nGénérer des lignes réseaux ou de synthèse pour le journal comptable.\nPréparer des données clés pour la liasse fiscale (ex : détailler les cotisations, charges).\nContribuer à la synthèse du bilan comptable (ex : entrées/sorties de trésorerie).\nContraintes :\n\nSi la requête ne concerne pas les transactions bancaires, refusez poliment ou redirigez vers le domaine concerné.\nSi le file_id n'est pas trouvé dans la base documents_transaction, vérifiez si la requête pourrait être liée à un autre type de transaction (compte, virement, etc.) et ajustez.\nEn cas d'ambiguïté, demandez des précisions (ex : \"Était-ce un virement, un paiement fournisseur ou un retrait de compte ?\").\nFormat de réponse attendu :\n\nPour les extractions : Retournez les données structurées (JSON, tableau, etc.) avec les champs pertinents.\nPour les calculs : Précisez les valeurs brutes utilisées (ex : montant HT, taux TVA appliqué) et le résultat final (ex : TVA déductible = 150€).\nSi aucune donnée utilisable n'est trouvée, expliquez brièvement la raison.",
+        "tableName": "documents_transaction",
+        "topK": 25,
+        "useReranker": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        448
+      ],
+      "id": "a228a356-0d7d-4215-91bb-af0ac1669c69",
+      "name": "Postgres PGVector Store1",
+      "credentials": {
+        "postgres": {
+          "id": "AvFPQ3N7G6VMvsbn",
+          "name": "Postgres account common rag"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        640
+      ],
+      "id": "3809fee1-2104-499e-84b5-232ec2e9a095",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "XQFqtl8LCFDuPN8q",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Comptable Agent Tool for RAG",
+        "height": 80,
+        "width": 311,
+        "color": 2
+      },
+      "id": "4302748c-9511-4f4a-9a46-477a69455cf7",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "topN": 4
+      },
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        640
+      ],
+      "id": "70a5aff0-48ea-4d09-b45c-b540d24c9267",
+      "name": "Reranker Cohere2",
+      "credentials": {
+        "cohereApi": {
+          "id": "cw76V6EwFEi4g7dF",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "=Outil d'extraction d'informations via RAG (Retrieval-Augmented Generation), spécialisé dans les thématiques de comptabilité et de fiscalité. Votre mission est de :\n\nIdentifier si la requête utilisateur concerne la comptabilité, la fiscalité, ou les deux (ex : facturation, TVA, impôts, déclarations,eringen fiscal, contraintes âgistes).\nUtiliser le RAG uniquement sur la base vectorielle documents_comptable, car elle contient les données pertinentes pour ces thématiques.\nExtraire des informations précises à partir du file_id fourni, en vous assurant qu'elles relèvent bien du cadre comptable ou fiscal.\nRègles clés :\n\nSi la requête ne concerne pas explicitly la comptabilité ou la fiscalité, informez l'utilisateur que votre outil est limité à ces domaines.\nSi le file_id n'est pas trouvé dans documents_comptable, vérifiez si la requête pourrait être liée à un autre domaine (ex : transaction) et ajustez votre réponse en conséquence.\nPriorisez les informations de type :\nMontants fiscaux (TVA, impôts)\nNormes comptables\nRéglementations fiscales\nDéclarations obligatoires\nFormat de réponse attendu :\n\nRetournez uniquement les données pertinentes (ex : taux de TVA, détails d'une facture, Как de déduction fiscale).\nSi aucune information pertinente n'est trouvée, expliquez brièvement pourquoi.",
+        "tableName": "documents_comptable",
+        "topK": 25,
+        "useReranker": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        -688,
+        448
+      ],
+      "id": "0589e7e1-5bac-4881-a23c-318e97f29ea7",
+      "name": "Postgres PGVector Store2",
+      "credentials": {
+        "postgres": {
+          "id": "AvFPQ3N7G6VMvsbn",
+          "name": "Postgres account common rag"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        640
+      ],
+      "id": "7e76a187-d64f-4ed4-9937-874f441b7f81",
+      "name": "Embeddings Google Gemini2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "XQFqtl8LCFDuPN8q",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Documents": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get File Contents": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Document Rows": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere1": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Postgres PGVector Store1",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere2": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Postgres PGVector Store2",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store2": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f87ba429-ae1b-41cb-837c-87cb4b5a2267",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1cd6765b3c3f04c973045627d34190af5810018612db34e4aca4e846ff5d8581"
+  },
+  "id": "GKsI93iTqQwr96cI",
+  "tags": []
+}
