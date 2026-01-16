@@ -1,7 +1,7 @@
-from typing import Dict, Any
-from langchain_core.messages import AIMessage, HumanMessage
+from typing import Dict, Any, List
+from langchain_core.messages import AIMessage, HumanMessage, BaseMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from src.graphs.state import AgentState
 from src.rag.retriever import get_retriever_for_client
 from src.rag.embeddings import get_reranker
@@ -19,7 +19,9 @@ async def route_query(state: AgentState) -> AgentState:
     Determines the business domain of the query.
     Domains: comptable, transaction, exploitation
     """
-    query = state.get("query") or state["messages"][-1].content
+    # Use the last message content as query
+    last_message = state["messages"][-1]
+    query = last_message.content if isinstance(last_message, (HumanMessage, AIMessage)) else str(last_message)
     
     prompt = ChatPromptTemplate.from_template(
         "Analyze the following user query and classify it into one of these three domains: "
@@ -69,16 +71,10 @@ async def rerank_docs(state: AgentState) -> AgentState:
         return {**state, "current_step": "reranked"}
         
     reranker = get_reranker()
-    # Reranking logic using Cohere
-    # Note: langchain-cohere provides a compressor/reranker
-    # We will pass docs through the reranker
     
-    # Format docs for reranking
     docs = state["retrieved_docs"]
     query = state["query"]
     
-    # Cohere Rerank usually expects a list of strings or docs
-    # langchain-cohere reranker handles this
     reranked_docs = reranker.compress_documents(docs, query)
     
     return {
@@ -89,24 +85,30 @@ async def rerank_docs(state: AgentState) -> AgentState:
 
 async def generate_answer(state: AgentState) -> AgentState:
     """
-    Generates the final answer based on the reranked documents.
+    Generates the final answer based on the reranked documents and conversation history.
     """
     docs = state["retrieved_docs"]
-    query = state["query"]
+    # We don't use query directly here, we let the LLM see the whole history
+    # But we inject context
     
     context = "\n\n".join([f"Source {i+1}:\n{doc.page_content}" for i, doc in enumerate(docs)])
     
-    prompt = ChatPromptTemplate.from_template(
-        "You are a professional business assistant. Use the following pieces of context to answer the question. "
-        "If you don't know the answer based on the context, say that you don't know, don't try to make up an answer. "
-        "Keep the answer concise and professional.\n\n"
-        "Context:\n{context}\n\n"
-        "Question: {query}\n\n"
-        "Answer:"
-    )
+    # Create a prompt that includes history
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a professional business assistant. Use the following pieces of context to answer the users question. "
+                   "If you don't know the answer based on the context, say that you don't know. "
+                   "Keep the answer concise and professional.\n\n"
+                   "Context:\n{context}"),
+        MessagesPlaceholder(variable_name="messages"),
+    ])
     
     chain = prompt | llm
-    response = await chain.ainvoke({"context": context, "query": query})
+    
+    # Pass the full message history
+    response = await chain.ainvoke({
+        "context": context,
+        "messages": state["messages"]
+    })
     
     return {
         **state,
