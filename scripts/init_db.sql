@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
 -- Extension pour vecteurs (si pgvector installé)
--- CREATE EXTENSION IF NOT EXISTS "vector";
+CREATE EXTENSION IF NOT EXISTS "vector";
 
 -- Table pour les checkpoints LangGraph (créée automatiquement par LangGraph)
 -- Mais on peut créer des tables métier ici

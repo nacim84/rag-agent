@@ -2001,6 +2001,24 @@ wheels = [
 ]
 
 [[package]]
+name = "langchain-postgres"
+version = "0.0.16"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "asyncpg" },
+    { name = "langchain-core" },
+    { name = "numpy" },
+    { name = "pgvector" },
+    { name = "psycopg", extra = ["binary"] },
+    { name = "psycopg-pool" },
+    { name = "sqlalchemy", extra = ["asyncio"] },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6f/5e/00065782aa0ad7b5faa9ff6881bcf361f2a7741e39db8e2b3e86164f80c8/langchain_postgres-0.0.16.tar.gz", hash = "sha256:d09aa4ea77ee8600a9ff64de9c185fb558aa388c816c7be04dd4559c878530b7", size = 232526, upload-time = "2025-10-17T15:00:29.203Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5a/a2/516934f8be231e50bb2afda8112641850154b057f5c45d82f42d216bed3d/langchain_postgres-0.0.16-py3-none-any.whl", hash = "sha256:a7375cf9fc9b6965efc207dbcc959424e96b8ffe75d5ced6055676d2613f8d37", size = 46028, upload-time = "2025-10-17T15:00:27.772Z" },
+]
+
+[[package]]
 name = "langchain-text-splitters"
 version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2851,6 +2869,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pgvector"
+version = "0.3.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7d/d8/fd6009cee3e03214667df488cdcf9609461d729968da94e4f95d6359d304/pgvector-0.3.6.tar.gz", hash = "sha256:31d01690e6ea26cea8a633cde5f0f55f5b246d9c8292d68efdef8c22ec994ade", size = 25421, upload-time = "2024-10-27T00:15:09.632Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fb/81/f457d6d361e04d061bef413749a6e1ab04d98cfeec6d8abcfe40184750f3/pgvector-0.3.6-py3-none-any.whl", hash = "sha256:f6c269b3c110ccb7496bac87202148ed18f34b390a0189c783e351062400a75a", size = 24880, upload-time = "2024-10-27T00:15:08.045Z" },
+]
+
+[[package]]
 name = "platformdirs"
 version = "4.5.1"
 source = { registry = "https://pypi.org/simple" }
@@ -3333,6 +3363,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pypdf"
+version = "6.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/f4/801632a8b62a805378b6af2b5a3fcbfd8923abf647e0ed1af846a83433b2/pypdf-6.6.0.tar.gz", hash = "sha256:4c887ef2ea38d86faded61141995a3c7d068c9d6ae8477be7ae5de8a8e16592f", size = 5281063, upload-time = "2026-01-09T11:20:11.786Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b2/ba/96f99276194f720e74ed99905a080f6e77810558874e8935e580331b46de/pypdf-6.6.0-py3-none-any.whl", hash = "sha256:bca9091ef6de36c7b1a81e09327c554b7ce51e88dad68f5890c2b4a4417f1fd7", size = 328963, upload-time = "2026-01-09T11:20:09.278Z" },
+]
+
+[[package]]
 name = "pytest"
 version = "9.0.2"
 source = { registry = "https://pypi.org/simple" }
@@ -3415,6 +3454,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/29/bf/eca6a3d43db1dae7070f70e160ab20b807627ba953663ba07928cdd3dc58/python_json_logger-4.0.0.tar.gz", hash = "sha256:f58e68eb46e1faed27e0f574a55a0455eecd7b8a5b88b85a784519ba3cff047f", size = 17683, upload-time = "2025-10-06T04:15:18.984Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/51/e5/fecf13f06e5e5f67e8837d777d1bc43fac0ed2b77a676804df5c34744727/python_json_logger-4.0.0-py3-none-any.whl", hash = "sha256:af09c9daf6a813aa4cc7180395f50f2a9e5fa056034c9953aec92e381c5ba1e2", size = 15548, upload-time = "2025-10-06T04:15:17.553Z" },
+]
+
+[[package]]
+name = "python-multipart"
+version = "0.0.21"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/78/96/804520d0850c7db98e5ccb70282e29208723f0964e88ffd9d0da2f52ea09/python_multipart-0.0.21.tar.gz", hash = "sha256:7137ebd4d3bbf70ea1622998f902b97a29434a9e8dc40eb203bbcf7c2a2cba92", size = 37196, upload-time = "2025-12-17T09:24:22.446Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/aa/76/03af049af4dcee5d27442f71b6924f01f3efb5d2bd34f23fcd563f2cc5f5/python_multipart-0.0.21-py3-none-any.whl", hash = "sha256:cf7a6713e01c87aa35387f4774e812c4361150938d20d232800f75ffcf266090", size = 24541, upload-time = "2025-12-17T09:24:21.153Z" },
 ]
 
 [[package]]
@@ -3578,6 +3626,7 @@ dependencies = [
     { name = "langchain-core" },
     { name = "langchain-google-genai" },
     { name = "langchain-openai" },
+    { name = "langchain-postgres" },
     { name = "langgraph" },
     { name = "langgraph-checkpoint-postgres" },
     { name = "langsmith" },
@@ -3585,7 +3634,9 @@ dependencies = [
     { name = "psycopg", extra = ["binary"] },
     { name = "pydantic" },
     { name = "pydantic-settings" },
+    { name = "pypdf" },
     { name = "python-dotenv" },
+    { name = "python-multipart" },
     { name = "python-telegram-bot" },
     { name = "redis" },
     { name = "slack-sdk" },
@@ -3643,6 +3694,7 @@ requires-dist = [
     { name = "langchain-core", specifier = ">=0.3.0" },
     { name = "langchain-google-genai", specifier = ">=2.0.0" },
     { name = "langchain-openai", specifier = ">=0.2.0" },
+    { name = "langchain-postgres", specifier = ">=0.0.16" },
     { name = "langgraph", specifier = ">=0.2.0" },
     { name = "langgraph-checkpoint-postgres", specifier = ">=0.1.0" },
     { name = "langsmith", specifier = ">=0.1.0" },
@@ -3652,11 +3704,13 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.1.0" },
     { name = "pydantic", specifier = ">=2.0.0" },
     { name = "pydantic-settings", specifier = ">=2.0.0" },
+    { name = "pypdf", specifier = ">=6.6.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
     { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.12.0" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
+    { name = "python-multipart", specifier = ">=0.0.21" },
     { name = "python-telegram-bot", specifier = ">=21.0" },
     { name = "redis", specifier = ">=5.0.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4.0" },

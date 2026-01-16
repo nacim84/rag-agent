@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from src.config.settings import settings
-from src.api.routes import chat
+from src.api.routes import chat, ingest
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -10,6 +10,7 @@ app = FastAPI(
 )
 
 app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
+app.include_router(ingest.router, prefix="/api/v1", tags=["ingest"])
 
 @app.get("/health")
 async def health_check():
