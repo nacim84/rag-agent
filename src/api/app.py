@@ -11,7 +11,7 @@ app = FastAPI(
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "ok", "app_name": settings.APP_NAME, "env": settings.APP_ENV}
+    return {"status": "ok", "app_name": settings.APP_NAME}
 
 if __name__ == "__main__":
     import uvicorn

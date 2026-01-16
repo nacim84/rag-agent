@@ -4,16 +4,16 @@ from langchain_core.messages import HumanMessage
 from src.agents.workflows.example_workflow import create_workflow
 
 async def main():
-    # Créer le workflow
+    # Create the workflow
     app = await create_workflow()
 
-    # Configuration du thread
+    # Thread configuration
     thread_id = str(uuid4())
     config = {"configurable": {"thread_id": thread_id}}
 
-    # Exécuter
+    # Execute
     initial_state = {
-        "messages": [HumanMessage(content="Traite cette tâche")],
+        "messages": [HumanMessage(content="Process this task")],
         "current_step": "start",
         "context": {},
         "error": None,
@@ -21,7 +21,7 @@ async def main():
     }
 
     result = await app.ainvoke(initial_state, config)
-    print(f"Résultat: {result['final_output']}")
+    print(f"Result: {result['final_output']}")
 
 if __name__ == "__main__":
     asyncio.run(main())
