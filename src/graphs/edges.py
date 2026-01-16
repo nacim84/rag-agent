@@ -1,9 +1,22 @@
 from src.graphs.state import AgentState
 
 def should_continue(state: AgentState) -> str:
-    """Détermine la prochaine étape."""
+    """
+    Controls the flow between nodes.
+    Currently linear: route -> retrieve -> rerank -> generate
+    """
     if state.get("error"):
-        return "error_handler"
-    if state["current_step"] == "analyzed":
-        return "process"
+        return "end" # Early exit on error
+        
+    step = state["current_step"]
+    
+    if step == "routed":
+        return "retrieve"
+    elif step == "retrieved":
+        return "rerank"
+    elif step == "reranked":
+        return "generate"
+    elif step == "completed":
+        return "end"
+        
     return "end"

@@ -26,6 +26,7 @@ class Settings(BaseSettings):
 
     GOOGLE_API_KEY: Optional[str] = None
     GOOGLE_MODEL: str = "gemini-1.5-pro"
+    GOOGLE_EMBEDDING_MODEL: str = "text-embedding-004"
 
     # LangSmith
     LANGCHAIN_TRACING_V2: bool = True
