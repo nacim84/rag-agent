@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: Optional[str] = None
     WHATSAPP_ACCESS_TOKEN: Optional[str] = None
 
+    # Google Workspace
+    GOOGLE_CREDENTIALS_PATH: Optional[str] = None
+    GOOGLE_TOKEN_PATH: str = "secrets/google_token.json"
+    GOOGLE_SERVICE_ACCOUNT_PATH: Optional[str] = None
+    GOOGLE_SCOPES: str = "https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/spreadsheets"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
